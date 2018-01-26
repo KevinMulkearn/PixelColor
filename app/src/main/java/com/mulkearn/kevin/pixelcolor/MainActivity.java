@@ -1,10 +1,13 @@
 package com.mulkearn.kevin.pixelcolor;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -15,6 +18,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 
@@ -24,12 +28,15 @@ public class MainActivity extends AppCompatActivity {
     Button searchButton, captureButton;
     ImageView imageView;
     TextView hexText, rgbText, hsvText, colorDisplay;
-    private int REQUEST_CODE = 1;
+    //private int REQUEST_CODE = 1;
+    private int REQUEST_CODE = 0;
     int x = 0, y = 0;
     int pixel, redValue, greenValue, blueValue;
     int height, width;
     Bitmap mainViewBitmap, imageBitmap = null;
     Uri uri;
+    public  static final int RequestPermissionCode  = 1 ;
+    Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,9 +64,7 @@ public class MainActivity extends AppCompatActivity {
         height = displayMetrics.heightPixels;
         width = displayMetrics.widthPixels;
 
-
-
-
+        EnableRuntimePermission();
 
 //        searchButton.setOnClickListener(new View.OnClickListener(){
 //           @Override
@@ -70,6 +75,16 @@ public class MainActivity extends AppCompatActivity {
 //           }
 //        });
 
+    }
+
+    public void EnableRuntimePermission(){
+        if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.CAMERA))
+        {
+            Toast.makeText(MainActivity.this,"CAMERA permission allowed", Toast.LENGTH_LONG).show();
+        } else {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{
+                    Manifest.permission.CAMERA}, RequestPermissionCode);
+        }
     }
 
     @Override
@@ -152,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestcode, int resultcode, Intent data){
         super.onActivityResult(requestcode, resultcode, data);
 
-        if(requestcode == REQUEST_CODE && resultcode == RESULT_OK && data != null && data.getData() != null){
+        if(requestcode == 1 && resultcode == RESULT_OK && data != null && data.getData() != null){
             uri = data.getData();
             try{
                 imageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
@@ -161,17 +176,50 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+        //////
+        else if (requestcode == 7 && resultcode == RESULT_OK) {
+            //Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+            imageBitmap = (Bitmap) data.getExtras().get("data");
+            imageView.setImageBitmap(imageBitmap);
+        }
+        ///////
     }
 
-    public void onCaptureClick(View view) {
-        Intent i = new Intent(this, CameraCapture.class);
-        startActivity(i);
-    }
+//    public void onCaptureClick(View view) {
+//        Intent i = new Intent(this, CameraCapture.class);
+//        startActivity(i);
+//    }
 
     public void onOpenClick(View view) {
-        Intent intent = new Intent();
+        REQUEST_CODE = 1;
+        intent = new Intent();
         intent.setType("image/*");
         startActivityForResult(Intent.createChooser(intent, "Select Image"), REQUEST_CODE);
     }
+
+    public void onCaptureClick(View view) {
+        REQUEST_CODE = 7;
+        intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(intent, REQUEST_CODE);
+    }
+
+
+
+
+
+    @Override
+    public void onRequestPermissionsResult(int RC, String per[], int[] PResult) {
+        switch (RC) {
+            case RequestPermissionCode:
+                if (PResult.length > 0 && PResult[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(MainActivity.this,"Starting Camera", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(MainActivity.this,"Camera Permission Denied", Toast.LENGTH_LONG).show();
+                }
+                break;
+        }
+    }
+
+
 
 }

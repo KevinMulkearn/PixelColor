@@ -12,7 +12,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-public class CameraCapture extends AppCompatActivity { //Activity{
+public class CameraCapture extends AppCompatActivity {
 
     Button capture_button;
     ImageView camera_image;
