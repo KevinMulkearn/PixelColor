@@ -21,7 +21,7 @@ import java.io.IOException;
 public class MainActivity extends AppCompatActivity {
 
     RelativeLayout mainView;
-    Button searchButton;
+    Button searchButton, captureButton;
     ImageView imageView;
     TextView hexText, rgbText, hsvText, colorDisplay;
     private int REQUEST_CODE = 1;
@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
         mainView = (RelativeLayout) findViewById(R.id.mainView);
         searchButton = (Button) findViewById(R.id.searchButton);
+        captureButton = (Button) findViewById(R.id.captureButton);
         imageView = (ImageView) findViewById(R.id.imageView);
         hexText = (TextView) findViewById(R.id.hexText);
         rgbText = (TextView) findViewById(R.id.rgbText);
@@ -56,14 +57,18 @@ public class MainActivity extends AppCompatActivity {
         height = displayMetrics.heightPixels;
         width = displayMetrics.widthPixels;
 
-        searchButton.setOnClickListener(new View.OnClickListener(){
-           @Override
-            public void onClick(View v){
-               Intent intent = new Intent();
-               intent.setType("image/*");
-               startActivityForResult(Intent.createChooser(intent, "Select Image"), REQUEST_CODE);
-           }
-        });
+
+
+
+
+//        searchButton.setOnClickListener(new View.OnClickListener(){
+//           @Override
+//            public void onClick(View v){
+//               Intent intent = new Intent();
+//               intent.setType("image/*");
+//               startActivityForResult(Intent.createChooser(intent, "Select Image"), REQUEST_CODE);
+//           }
+//        });
 
     }
 
@@ -156,6 +161,17 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void onCaptureClick(View view) {
+        Intent i = new Intent(this, CameraCapture.class);
+        startActivity(i);
+    }
+
+    public void onOpenClick(View view) {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        startActivityForResult(Intent.createChooser(intent, "Select Image"), REQUEST_CODE);
     }
 
 }
