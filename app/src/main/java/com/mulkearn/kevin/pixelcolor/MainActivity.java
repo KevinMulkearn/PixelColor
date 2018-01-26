@@ -28,12 +28,11 @@ public class MainActivity extends AppCompatActivity {
     int x = 0, y = 0;
     int pixel, redValue, greenValue, blueValue;
     int height, width;
-    Bitmap bm;
+    Bitmap mainViewBitmap, imageBitmap = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getSupportActionBar().hide();
         setContentView(R.layout.activity_main);
@@ -64,6 +63,24 @@ public class MainActivity extends AppCompatActivity {
 
 
     @Override
+    protected void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
+        //(key,value)
+//        outState.putParcelable("image_bitmap", imageBitmap);
+    }
+
+    //reset the saved state values
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState){
+        super.onRestoreInstanceState(savedInstanceState);
+//        if (savedInstanceState != null) {
+//            imageBitmap = (Bitmap) savedInstanceState.getParcelable("image_bitmap");
+//            imageView.setImageBitmap(imageBitmap);
+//        }
+    }
+
+
+    @Override
     public boolean onTouchEvent(MotionEvent event) {
 
         x = (int)event.getX();
@@ -86,9 +103,9 @@ public class MainActivity extends AppCompatActivity {
 
         mainView.setDrawingCacheEnabled(true);
         mainView.buildDrawingCache();
-        bm = mainView.getDrawingCache();
+        mainViewBitmap = mainView.getDrawingCache();
 
-        pixel = bm.getPixel(x,y);
+        pixel = mainViewBitmap.getPixel(x,y);
 
         redValue = Color.red(pixel);
         blueValue = Color.blue(pixel);
@@ -130,8 +147,8 @@ public class MainActivity extends AppCompatActivity {
         if(requestcode == REQUEST_CODE && resultcode == RESULT_OK && data != null && data.getData() != null){
             Uri uri = data.getData();
             try{
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                imageView.setImageBitmap(bitmap);
+                imageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                imageView.setImageBitmap(imageBitmap);
             } catch (IOException e) {
                 e.printStackTrace();
             }
