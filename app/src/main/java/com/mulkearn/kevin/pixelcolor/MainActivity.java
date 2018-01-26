@@ -46,8 +46,7 @@ public class MainActivity extends AppCompatActivity {
         hsvText = (TextView) findViewById(R.id.hsvText);
         colorDisplay = (TextView) findViewById(R.id.colorDisplay);
 
-        //uri = Uri.parse("android.resource://my.package.name/"+R.drawable.image);
-        uri = Uri.parse("android.resource://com.mulkearn.kevin.pixelcolor/"+R.drawable.ic_launcher_background);
+        uri = Uri.parse("android.resource://com.mulkearn.kevin.pixelcolor/"+R.drawable.color_home_screen);
         imageView.setImageURI(null);
         imageView.setImageURI(uri);
 
@@ -56,8 +55,6 @@ public class MainActivity extends AppCompatActivity {
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         height = displayMetrics.heightPixels;
         width = displayMetrics.widthPixels;
-
-        //imageView.setImageBitmap(imageBitmap);
 
         searchButton.setOnClickListener(new View.OnClickListener(){
            @Override
@@ -70,13 +67,10 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
     @Override
     protected void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
         //(key,value)
-        //outState.putParcelable("image_bitmap", imageBitmap);
-        //outState.putString("uri", uri.getPath().toString());
         outState.putParcelable("uri", uri);
     }
 
@@ -86,18 +80,9 @@ public class MainActivity extends AppCompatActivity {
         super.onRestoreInstanceState(savedInstanceState);
 
         Uri newUri = savedInstanceState.getParcelable("uri");
-
-        //hexText.setText(newUri.toString());
         uri = newUri;
         imageView.setImageURI(null);
         imageView.setImageURI(uri);
-
-//        if (savedInstanceState != null) {
-//            imageBitmap = (Bitmap) savedInstanceState.getParcelable("image_bitmap");
-//            imageView.setImageBitmap(imageBitmap);
-//            savedInstanceState.clear();
-//        }
-
     }
 
 
@@ -147,13 +132,10 @@ public class MainActivity extends AppCompatActivity {
 
     public String getHSVValue(int r, int g, int b){
         float[] hsv = new float[3];
-
         Color.RGBToHSV(r, g, b, hsv);
-
         float h = hsv[0];
         float s = hsv[1] * 100;
         float v = hsv[2] * 100;
-
         String hue = Integer.toString((int) h) + "\u00b0";
         String sat = Integer.toString((int) s) + "%";
         String val = Integer.toString((int) v) + "%";
