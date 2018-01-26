@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     int pixel, redValue, greenValue, blueValue;
     int height, width;
     Bitmap mainViewBitmap, imageBitmap = null;
+    Uri uri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,10 +46,18 @@ public class MainActivity extends AppCompatActivity {
         hsvText = (TextView) findViewById(R.id.hsvText);
         colorDisplay = (TextView) findViewById(R.id.colorDisplay);
 
+        //uri = Uri.parse("android.resource://my.package.name/"+R.drawable.image);
+        uri = Uri.parse("android.resource://com.mulkearn.kevin.pixelcolor/"+R.drawable.ic_launcher_background);
+        imageView.setImageURI(null);
+        imageView.setImageURI(uri);
+
+
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         height = displayMetrics.heightPixels;
         width = displayMetrics.widthPixels;
+
+        //imageView.setImageBitmap(imageBitmap);
 
         searchButton.setOnClickListener(new View.OnClickListener(){
            @Override
@@ -66,17 +75,29 @@ public class MainActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
         //(key,value)
-//        outState.putParcelable("image_bitmap", imageBitmap);
+        //outState.putParcelable("image_bitmap", imageBitmap);
+        //outState.putString("uri", uri.getPath().toString());
+        outState.putParcelable("uri", uri);
     }
 
     //reset the saved state values
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState){
         super.onRestoreInstanceState(savedInstanceState);
+
+        Uri newUri = savedInstanceState.getParcelable("uri");
+
+        //hexText.setText(newUri.toString());
+        uri = newUri;
+        imageView.setImageURI(null);
+        imageView.setImageURI(uri);
+
 //        if (savedInstanceState != null) {
 //            imageBitmap = (Bitmap) savedInstanceState.getParcelable("image_bitmap");
 //            imageView.setImageBitmap(imageBitmap);
+//            savedInstanceState.clear();
 //        }
+
     }
 
 
@@ -145,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestcode, resultcode, data);
 
         if(requestcode == REQUEST_CODE && resultcode == RESULT_OK && data != null && data.getData() != null){
-            Uri uri = data.getData();
+            uri = data.getData();
             try{
                 imageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                 imageView.setImageBitmap(imageBitmap);
