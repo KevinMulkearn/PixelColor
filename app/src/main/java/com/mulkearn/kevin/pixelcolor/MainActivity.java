@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
     RelativeLayout mainView;
     Button searchButton;
     ImageView imageView;
-    TextView locationText, pixelText, colorDisplay;
+    TextView hexText, rgbText, hsvText, colorDisplay;
     private int REQUEST_CODE = 1;
     int x = 0, y = 0;
     int pixel, redValue, greenValue, blueValue;
@@ -41,8 +41,9 @@ public class MainActivity extends AppCompatActivity {
         mainView = (RelativeLayout) findViewById(R.id.mainView);
         searchButton = (Button) findViewById(R.id.searchButton);
         imageView = (ImageView) findViewById(R.id.imageView);
-        locationText = (TextView) findViewById(R.id.locationText);
-        pixelText = (TextView) findViewById(R.id.pixelText);
+        hexText = (TextView) findViewById(R.id.hexText);
+        rgbText = (TextView) findViewById(R.id.rgbText);
+        hsvText = (TextView) findViewById(R.id.hsvText);
         colorDisplay = (TextView) findViewById(R.id.colorDisplay);
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -55,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v){
                Intent intent = new Intent();
                intent.setType("image/*");
-               startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_CODE);
+               startActivityForResult(Intent.createChooser(intent, "Select Image"), REQUEST_CODE);
            }
         });
 
@@ -93,12 +94,33 @@ public class MainActivity extends AppCompatActivity {
         blueValue = Color.blue(pixel);
         greenValue = Color.green(pixel);
 
-        locationText.setText("X:" + x + " Y:" + y);
-        pixelText.setText("Red:" + redValue + "Green:" + blueValue + "Blue:" + greenValue);
+        hexText.setText("Hex: " + rgbToHex(redValue, blueValue, greenValue));
+        rgbText.setText("rgb(" + redValue + ", " + blueValue + ", " + greenValue + ")");
+        hsvText.setText(getHSVValue(redValue, blueValue, greenValue));
 
         colorDisplay.setBackgroundColor(pixel);
 
         return false;//??check if this should be true??
+    }
+
+    public String rgbToHex(int r, int g, int b){
+        return String.format("#%02X%02X%02X",r, g, b);
+    }
+
+    public String getHSVValue(int r, int g, int b){
+        float[] hsv = new float[3];
+
+        Color.RGBToHSV(r, g, b, hsv);
+
+        float h = hsv[0];
+        float s = hsv[1] * 100;
+        float v = hsv[2] * 100;
+
+        String hue = Integer.toString((int) h) + "\u00b0";
+        String sat = Integer.toString((int) s) + "%";
+        String val = Integer.toString((int) v) + "%";
+
+        return "hsv(" + hue + ", " + sat + ", " + val + ")";
     }
 
     @Override
