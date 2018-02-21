@@ -104,9 +104,9 @@ public class MainActivity extends AppCompatActivity {
         blueValue = Color.blue(pixel);
         greenValue = Color.green(pixel);
 
-        hexText.setText("Hex: " + rgbToHex(redValue, blueValue, greenValue));
-        rgbText.setText("rgb(" + redValue + ", " + blueValue + ", " + greenValue + ")");
-        hsvText.setText(getHSVValue(redValue, blueValue, greenValue));
+        hexText.setText("Hex: " + rgbToHex(redValue, greenValue, blueValue));
+        rgbText.setText("rgb(" + redValue + ", " + greenValue + ", " + blueValue + ")");
+        hsvText.setText(getHSVValue(redValue, greenValue, blueValue));
         colorDisplay.setBackgroundColor(pixel);
 
         return false;//??check if this should be true??
@@ -136,9 +136,9 @@ public class MainActivity extends AppCompatActivity {
         float h = hsv[0];
         float s = hsv[1] * 100;
         float v = hsv[2] * 100;
-        String hue = Integer.toString((int) h) + "\u00b0";
-        String sat = Integer.toString((int) s) + "%";
-        String val = Integer.toString((int) v) + "%";
+        String hue = Math.round(h) + "\u00b0";
+        String sat = Math.round(s) + "%";
+        String val = Math.round(v) + "%";
 
         return "hsv(" + hue + ", " + sat + ", " + val + ")";
     }
