@@ -116,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
         REQUEST_CODE = 1;
         intent = new Intent();
         intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(intent, "Select Image"), REQUEST_CODE);
     }
 
