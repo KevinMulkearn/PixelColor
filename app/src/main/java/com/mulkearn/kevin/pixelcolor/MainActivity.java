@@ -4,10 +4,13 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -19,7 +22,11 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -27,13 +34,14 @@ public class MainActivity extends AppCompatActivity {
     Button searchButton, captureButton;
     ImageView imageView;
     TextView hexText, rgbText, hsvText, colorDisplay;
-    Intent intent;
     Bitmap mainViewBitmap, imageBitmap = null;
     Uri uri;
     private int REQUEST_CODE = 0;
     public  static final int RequestPermissionCode  = 1 ;
     int x = 0, y = 0;
     int pixel, redValue, greenValue, blueValue, height, width;
+
+    String mCurrentPhotoPath;
 
 
     @Override
@@ -43,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().hide();
         setContentView(R.layout.activity_main);
 
+        //Get references
         mainView = (RelativeLayout) findViewById(R.id.mainView);
         searchButton = (Button) findViewById(R.id.searchButton);
         captureButton = (Button) findViewById(R.id.captureButton);
@@ -52,16 +61,18 @@ public class MainActivity extends AppCompatActivity {
         hsvText = (TextView) findViewById(R.id.hsvText);
         colorDisplay = (TextView) findViewById(R.id.colorDisplay);
 
-        uri = Uri.parse("android.resource://com.mulkearn.kevin.pixelcolor/"+R.drawable.color_home_screen);
-        imageView.setImageURI(null);
-        imageView.setImageURI(uri);
-
+        //Get screen dimensions
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         height = displayMetrics.heightPixels;
         width = displayMetrics.widthPixels;
 
-        EnableRuntimePermission();
+        //Set imageView image
+        uri = Uri.parse("android.resource://com.mulkearn.kevin.pixelcolor/" + R.drawable.color_home_screen);
+        imageView.setImageURI(null);
+        imageView.setImageURI(uri);
+
+        //EnableRuntimePermission();
     }
 
 
@@ -114,15 +125,124 @@ public class MainActivity extends AppCompatActivity {
 
     public void onOpenClick(View view) {
         REQUEST_CODE = 1;
-        intent = new Intent();
-        intent.setType("image/*");
-        startActivityForResult(Intent.createChooser(intent, "Select Image"), REQUEST_CODE);
+        Intent i_open = new Intent();
+        i_open.setType("image/*");
+        i_open.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(i_open, "Select Image"), REQUEST_CODE);
     }
+
+    /////https://developer.android.com/training/camera/photobasics.html#TaskScalePhoto//////
 
     public void onCaptureClick(View view) {
         REQUEST_CODE = 2;
-        intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(intent, REQUEST_CODE);
+        Intent i_capture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (i_capture.resolveActivity(getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+//            try {
+//                photoFile = createImageFile();
+//            } catch (IOException ex) {
+//                Toast.makeText(MainActivity.this, "Error in Saving File", Toast.LENGTH_LONG).show();
+//            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(this,
+                        "com.mulkearn.kevin.pixelcolor", photoFile);
+                i_capture.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                //startActivityForResult(i_capture, REQUEST_CODE);
+            }
+            startActivityForResult(i_capture, REQUEST_CODE);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        //super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == 1 && resultCode == RESULT_OK && data != null && data.getData() != null){ //Get device image
+            uri = data.getData();
+            try{
+                imageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                imageView.setImageBitmap(imageBitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else if (requestCode == 2 && resultCode == RESULT_OK) { //Get thumbnail image
+            Bundle extras = data.getExtras();
+            imageBitmap = (Bitmap) extras.get("data");
+            imageView.setImageBitmap(imageBitmap);
+
+            //galleryAddPic();
+            //setPic();
+        }
+    }
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName, ".jpg", storageDir); // prefix, suffix, directory
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
+    private void galleryAddPic() {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(mCurrentPhotoPath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        this.sendBroadcast(mediaScanIntent);
+    }
+
+    private void setPic() {
+        // Get the dimensions of the View
+        int targetW = imageView.getWidth();
+        int targetH = imageView.getHeight();
+
+        // Get the dimensions of the bitmap
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+        int photoW = bmOptions.outWidth;
+        int photoH = bmOptions.outHeight;
+
+        // Determine how much to scale down the image
+        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+
+        // Decode the image file into a Bitmap sized to fill the View
+        bmOptions.inJustDecodeBounds = false;
+        bmOptions.inSampleSize = scaleFactor;
+        bmOptions.inPurgeable = true;
+
+        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+        imageView.setImageBitmap(bitmap);
+    }
+
+//    @Override
+//    public void onRequestPermissionsResult(int RC, String per[], int[] PResult) {
+//        switch (RC) {
+//            case RequestPermissionCode:
+//                if (PResult.length > 0 && PResult[0] == PackageManager.PERMISSION_GRANTED) {
+//                    //Toast.makeText(MainActivity.this,"Starting Camera", Toast.LENGTH_LONG).show();
+//                } else {
+//                    Toast.makeText(MainActivity.this,"Camera Permission Denied", Toast.LENGTH_LONG).show();
+//                }
+//                break;
+//        }
+//    }
+
+    public void EnableRuntimePermission(){
+        if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.CAMERA))
+        {
+            Toast.makeText(MainActivity.this,"CAMERA permission allowed", Toast.LENGTH_LONG).show();
+        } else {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{
+                    Manifest.permission.CAMERA}, RequestPermissionCode);
+        }
     }
 
 
@@ -141,48 +261,6 @@ public class MainActivity extends AppCompatActivity {
         String val = Math.round(v) + "%";
 
         return "hsv(" + hue + ", " + sat + ", " + val + ")";
-    }
-
-    @Override
-    protected void onActivityResult(int requestcode, int resultcode, Intent data){
-        super.onActivityResult(requestcode, resultcode, data);
-
-        if(requestcode == 1 && resultcode == RESULT_OK && data != null && data.getData() != null){
-            uri = data.getData();
-            try{
-                imageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                imageView.setImageBitmap(imageBitmap);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        else if (requestcode == 2 && resultcode == RESULT_OK) {
-            imageBitmap = (Bitmap) data.getExtras().get("data");
-            imageView.setImageBitmap(imageBitmap);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int RC, String per[], int[] PResult) {
-        switch (RC) {
-            case RequestPermissionCode:
-                if (PResult.length > 0 && PResult[0] == PackageManager.PERMISSION_GRANTED) {
-                    //Toast.makeText(MainActivity.this,"Starting Camera", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(MainActivity.this,"Camera Permission Denied", Toast.LENGTH_LONG).show();
-                }
-                break;
-        }
-    }
-
-    public void EnableRuntimePermission(){
-        if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.CAMERA))
-        {
-            Toast.makeText(MainActivity.this,"CAMERA permission allowed", Toast.LENGTH_LONG).show();
-        } else {
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{
-                    Manifest.permission.CAMERA}, RequestPermissionCode);
-        }
     }
 
 }
