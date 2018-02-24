@@ -1,15 +1,12 @@
 package com.mulkearn.kevin.pixelcolor;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -38,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
     Uri uri, photoURI;
 
     private int REQUEST_CODE = 0;
-    public  static final int RequestPermissionCode  = 1 ;
     int x = 0, y = 0;
     int pixel, redValue, greenValue, blueValue, height, width;
     String mCurrentPhotoPath;
@@ -71,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
         imageView.setImageURI(null);
         imageView.setImageURI(uri);
     }
-
 
     @Override
     protected void onSaveInstanceState(Bundle outState){
@@ -118,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
         hsvText.setText(getHSVValue(redValue, greenValue, blueValue));
         colorDisplay.setBackgroundColor(pixel);
 
-        return false;//??check if this should be true??
+        return false;
     }
 
     public void onOpenClick(View view) {
