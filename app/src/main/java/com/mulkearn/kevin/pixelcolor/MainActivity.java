@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     Button searchButton, captureButton;
     ImageView imageView;
     TextView hexText, rgbText, hsvText, colorDisplay;
-    Bitmap mainViewBitmap, imageBitmap = null;
+    Bitmap mainViewBitmap, imageBitmap = null, bm;
     Uri uri, photoURI;
 
     private int REQUEST_CODE = 0;
@@ -90,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+
         x = (int)event.getX();
         if(x < 0){
             x = 0;
@@ -200,8 +201,8 @@ public class MainActivity extends AppCompatActivity {
         bmOptions.inSampleSize = scaleFactor;
         bmOptions.inPurgeable = true;
 
-        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
-        imageView.setImageBitmap(bitmap);
+        imageBitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+        imageView.setImageBitmap(imageBitmap);
     }
 
     public String rgbToHex(int r, int g, int b){
