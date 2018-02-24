@@ -35,14 +35,13 @@ public class MainActivity extends AppCompatActivity {
     ImageView imageView;
     TextView hexText, rgbText, hsvText, colorDisplay;
     Bitmap mainViewBitmap, imageBitmap = null;
-    Uri uri;
+    Uri uri, photoURI;
+
     private int REQUEST_CODE = 0;
     public  static final int RequestPermissionCode  = 1 ;
     int x = 0, y = 0;
     int pixel, redValue, greenValue, blueValue, height, width;
-
     String mCurrentPhotoPath;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,8 +70,6 @@ public class MainActivity extends AppCompatActivity {
         uri = Uri.parse("android.resource://com.mulkearn.kevin.pixelcolor/" + R.drawable.color_home_screen);
         imageView.setImageURI(null);
         imageView.setImageURI(uri);
-
-        //EnableRuntimePermission();
     }
 
 
@@ -131,8 +128,6 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(Intent.createChooser(i_open, "Select Image"), REQUEST_CODE);
     }
 
-    /////https://developer.android.com/training/camera/photobasics.html#TaskScalePhoto//////
-
     public void onCaptureClick(View view) {
         REQUEST_CODE = 2;
         Intent i_capture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -140,41 +135,34 @@ public class MainActivity extends AppCompatActivity {
         if (i_capture.resolveActivity(getPackageManager()) != null) {
             // Create the File where the photo should go
             File photoFile = null;
-//            try {
-//                photoFile = createImageFile();
-//            } catch (IOException ex) {
-//                Toast.makeText(MainActivity.this, "Error in Saving File", Toast.LENGTH_LONG).show();
-//            }
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                Toast.makeText(MainActivity.this, "Error in Saving File", Toast.LENGTH_LONG).show();
+            }
             // Continue only if the File was successfully created
             if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.mulkearn.kevin.pixelcolor", photoFile);
+                photoURI = FileProvider.getUriForFile(this,
+                        "com.mulkearn.kevin.fileprovider", photoFile);
                 i_capture.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                //startActivityForResult(i_capture, REQUEST_CODE);
+                startActivityForResult(i_capture, REQUEST_CODE);
             }
-            startActivityForResult(i_capture, REQUEST_CODE);
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        //super.onActivityResult(requestCode, resultCode, data);
-
         if(requestCode == 1 && resultCode == RESULT_OK && data != null && data.getData() != null){ //Get device image
             uri = data.getData();
             try{
                 imageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                 imageView.setImageBitmap(imageBitmap);
             } catch (IOException e) {
-                e.printStackTrace();
+                Toast.makeText(MainActivity.this, "Unexpected Error", Toast.LENGTH_LONG).show();
             }
         } else if (requestCode == 2 && resultCode == RESULT_OK) { //Get thumbnail image
-            Bundle extras = data.getExtras();
-            imageBitmap = (Bitmap) extras.get("data");
-            imageView.setImageBitmap(imageBitmap);
-
-            //galleryAddPic();
-            //setPic();
+            uri = photoURI;
+            setPic();
         }
     }
 
@@ -183,19 +171,13 @@ public class MainActivity extends AppCompatActivity {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+
         File image = File.createTempFile(
                 imageFileName, ".jpg", storageDir); // prefix, suffix, directory
         // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = image.getAbsolutePath();
-        return image;
-    }
 
-    private void galleryAddPic() {
-        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        File f = new File(mCurrentPhotoPath);
-        Uri contentUri = Uri.fromFile(f);
-        mediaScanIntent.setData(contentUri);
-        this.sendBroadcast(mediaScanIntent);
+        return image;
     }
 
     private void setPic() {
@@ -221,30 +203,6 @@ public class MainActivity extends AppCompatActivity {
         Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
         imageView.setImageBitmap(bitmap);
     }
-
-//    @Override
-//    public void onRequestPermissionsResult(int RC, String per[], int[] PResult) {
-//        switch (RC) {
-//            case RequestPermissionCode:
-//                if (PResult.length > 0 && PResult[0] == PackageManager.PERMISSION_GRANTED) {
-//                    //Toast.makeText(MainActivity.this,"Starting Camera", Toast.LENGTH_LONG).show();
-//                } else {
-//                    Toast.makeText(MainActivity.this,"Camera Permission Denied", Toast.LENGTH_LONG).show();
-//                }
-//                break;
-//        }
-//    }
-
-    public void EnableRuntimePermission(){
-        if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.CAMERA))
-        {
-            Toast.makeText(MainActivity.this,"CAMERA permission allowed", Toast.LENGTH_LONG).show();
-        } else {
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{
-                    Manifest.permission.CAMERA}, RequestPermissionCode);
-        }
-    }
-
 
     public String rgbToHex(int r, int g, int b){
         return String.format("#%02X%02X%02X",r, g, b);
