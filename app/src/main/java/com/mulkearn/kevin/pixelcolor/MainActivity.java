@@ -1,5 +1,7 @@
 package com.mulkearn.kevin.pixelcolor;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -7,6 +9,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -31,8 +34,9 @@ public class MainActivity extends AppCompatActivity {
     Button searchButton, captureButton;
     ImageView imageView;
     TextView hexText, rgbText, hsvText, colorDisplay;
-    Bitmap mainViewBitmap, imageBitmap = null, bm;
+    Bitmap mainViewBitmap, imageBitmap = null;
     Uri uri, photoURI;
+    public  static final int RequestPermissionCode  = 1 ;
 
     private int REQUEST_CODE = 0;
     int x = 0, y = 0;
@@ -66,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
         uri = Uri.parse("android.resource://com.mulkearn.kevin.pixelcolor/" + R.drawable.color_home_screen);
         imageView.setImageURI(null);
         imageView.setImageURI(uri);
+
+        EnableRuntimePermission();
     }
 
     @Override
@@ -77,10 +83,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState){
         super.onRestoreInstanceState(savedInstanceState);
-        Uri newUri = savedInstanceState.getParcelable("uri");
-        uri = newUri;
-        imageView.setImageURI(null);
-        imageView.setImageURI(uri);
+        uri = savedInstanceState.getParcelable("uri");
+        if(uri != null){
+            imageView.setImageURI(uri);
+        }
     }
 
     @Override
@@ -134,13 +140,14 @@ public class MainActivity extends AppCompatActivity {
             try {
                 photoFile = createImageFile();
             } catch (IOException ex) {
-                Toast.makeText(MainActivity.this, "Error in Saving File", Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, "Error Saving", Toast.LENGTH_LONG).show();
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
                 photoURI = FileProvider.getUriForFile(this,
                         "com.mulkearn.kevin.fileprovider", photoFile);
                 i_capture.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                uri = photoURI;
                 startActivityForResult(i_capture, REQUEST_CODE);
             }
         }
@@ -148,7 +155,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        if(requestCode == 1 && resultCode == RESULT_OK && data != null && data.getData() != null){ //Get device image
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == 1 && resultCode == Activity.RESULT_OK && data != null && data.getData() != null){ //Get device image
             uri = data.getData();
             try{
                 imageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
@@ -156,8 +165,7 @@ public class MainActivity extends AppCompatActivity {
             } catch (IOException e) {
                 Toast.makeText(MainActivity.this, "Unexpected Error", Toast.LENGTH_LONG).show();
             }
-        } else if (requestCode == 2 && resultCode == RESULT_OK) { //Get thumbnail image
-            uri = photoURI;
+        } else if (requestCode == 2 && resultCode == Activity.RESULT_OK) { //Get thumbnail image
             setPic();
         }
     }
@@ -215,6 +223,16 @@ public class MainActivity extends AppCompatActivity {
         String val = Math.round(v) + "%";
 
         return "hsv(" + hue + ", " + sat + ", " + val + ")";
+    }
+
+    public void EnableRuntimePermission(){
+        if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.CAMERA))
+        {
+            Toast.makeText(MainActivity.this,"CAMERA permission allowed", Toast.LENGTH_LONG).show();
+        } else {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{
+                    Manifest.permission.CAMERA}, RequestPermissionCode);
+        }
     }
 
 }
