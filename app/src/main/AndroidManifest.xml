@@ -33,6 +33,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ImageViewActivity"
+            android:label="Image View"
+            android:theme="@style/AppTheme"/>
     </application>
 
 </manifest>

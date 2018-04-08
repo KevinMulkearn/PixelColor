@@ -2,82 +2,14 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/mainView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.mulkearn.kevin.pixelcolor.MainActivity">
 
-    <ImageView
-        android:id="@+id/imageView"
+    <Button
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="5dp"
-        android:layout_alignParentTop="true"
-        android:layout_above="@+id/infoPanel"/>
-
-    <LinearLayout
-        android:id="@+id/infoPanel"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_margin="5dp"
-        android:orientation="horizontal"
-        android:layout_alignParentBottom="true">
-
-        <TextView
-            android:id="@+id/colorDisplay"
-            android:layout_width="30dp"
-            android:layout_height="match_parent"
-            android:background="#000000"/>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:layout_marginStart="5dp"
-            android:layout_weight="1">
-
-            <TextView
-                android:id="@+id/hexText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Hex:#000000"
-                android:textSize="15sp"
-                android:textColor="#000000"/>
-
-            <TextView
-                android:id="@+id/rgbText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="rgb(0,0,0)"
-                android:textSize="15sp"
-                android:textColor="#000000"/>
-
-            <TextView
-                android:id="@+id/hsvText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="hsv(0°,0%,0%)"
-                android:textSize="15sp"
-                android:textColor="#000000"/>
-
-        </LinearLayout>
-
-        <Button
-            android:id="@+id/captureButton"
-            android:layout_width="60dp"
-            android:layout_height="match_parent"
-            android:layout_marginStart="5dp"
-            android:onClick="onCaptureClick"
-            android:background="@drawable/camera_icon"/>
-
-        <Button
-            android:id="@+id/searchButton"
-            android:layout_width="60dp"
-            android:layout_height="match_parent"
-            android:layout_marginStart="5dp"
-            android:onClick="onOpenClick"
-            android:background="@drawable/image_icon"/>
-
-    </LinearLayout>
+        android:layout_height="wrap_content"
+        android:text="Image Activity"
+        android:onClick="startImageActivity"/>
 
 </RelativeLayout>
