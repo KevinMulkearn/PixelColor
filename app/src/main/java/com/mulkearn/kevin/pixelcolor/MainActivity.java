@@ -2,7 +2,9 @@ package com.mulkearn.kevin.pixelcolor;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -66,8 +68,11 @@ public class MainActivity extends AppCompatActivity {
         height = displayMetrics.heightPixels;
         width = displayMetrics.widthPixels;
 
+        SharedPreferences sharedPref = getSharedPreferences("picture", Context.MODE_PRIVATE);
+        String imagePath = sharedPref.getString("picturePath", "android.resource://com.mulkearn.kevin.pixelcolor/" + R.drawable.color_home_screen);
+
         //Set imageView image
-        uri = Uri.parse("android.resource://com.mulkearn.kevin.pixelcolor/" + R.drawable.color_home_screen);
+        uri = Uri.parse(imagePath);
         imageView.setImageURI(null);
         imageView.setImageURI(uri);
 
@@ -167,6 +172,11 @@ public class MainActivity extends AppCompatActivity {
             }
         } else if (requestCode == 2 && resultCode == Activity.RESULT_OK) { //Get thumbnail image
             setPic();
+
+            SharedPreferences sharedPref = getSharedPreferences("picture", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString("picturePath", mCurrentPhotoPath);
+            editor.apply();
         }
     }
 
