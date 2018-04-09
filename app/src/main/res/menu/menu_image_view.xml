@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/save"
+        android:icon="@android:drawable/ic_menu_save"
+        android:title="Save Color"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/rotate"
+        android:icon="@android:drawable/ic_menu_rotate"
+        android:title="Rotate Image"
+        app:showAsAction="ifRoom" />
+
+</menu>

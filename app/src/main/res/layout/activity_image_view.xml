@@ -5,7 +5,8 @@
     android:id="@+id/mainView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.mulkearn.kevin.pixelcolor.ImageViewActivity">
+    tools:context="com.mulkearn.kevin.pixelcolor.ImageViewActivity"
+    android:background="#FFE8E8">
 
     <ImageView
         android:id="@+id/imageView"
@@ -67,16 +68,18 @@
             android:layout_width="60dp"
             android:layout_height="match_parent"
             android:layout_marginStart="5dp"
+            android:background="@android:drawable/ic_menu_camera"
             android:onClick="onCaptureClick"
-            android:background="@drawable/camera_icon"/>
+            android:backgroundTint="#9e741f"/>
 
         <Button
             android:id="@+id/searchButton"
             android:layout_width="60dp"
             android:layout_height="match_parent"
             android:layout_marginStart="5dp"
+            android:background="@android:drawable/ic_menu_gallery"
             android:onClick="onOpenClick"
-            android:background="@drawable/image_icon"/>
+            android:backgroundTint="#9e741f"/>
 
     </LinearLayout>
 
