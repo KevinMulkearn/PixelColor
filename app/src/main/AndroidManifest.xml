@@ -36,7 +36,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ImageViewActivity"
-            android:label="Image View"
+            android:label="Image Selector"
             android:screenOrientation="portrait"
             android:parentActivityName=".MainActivity">
             <meta-data
